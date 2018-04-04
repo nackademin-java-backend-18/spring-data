@@ -18,18 +18,29 @@ public class Main {
 
             EmployeeRepository repository = context.getBean(EmployeeRepository.class);
 
-            Page<Employee> result = repository.searchEmployeeByZip("Zip", PageRequest.of(0, 4));
+            String zip = "Zip2";
+            Page<Employee> result = repository.searchEmployeeByZip(zip, PageRequest.of(0, 4));
 
             // Loop result and request next page
 			while(result.hasNext()) {
-				System.out.println("--------- Page " + result.getNumber() + " ----------");
-				result.forEach(System.out::println);
-				result = repository.searchEmployeeByZip("Zip5", result.nextPageable());
+                printResult(result);
+                result = repository.searchEmployeeByZip(zip, result.nextPageable());
+                // If this is the last page just print result
+				if(result.isLast()) {
+                   printResult(result);
+                }
 			}
-			// To get content from last page
-			System.out.println("--------- Page " + result.getNumber() + " ----------");
-			result.forEach(System.out::println);
         }
+    }
+
+    private static void printResult(Page<Employee> page) {
+        String header = getPageHeaderString(page);
+        System.out.println(header);
+        page.forEach(System.out::println);
+    }
+
+    private static String getPageHeaderString(Page<Employee> page) {
+        return String.format("--- Page:%s of %s ---", (page.getNumber() + 1), page.getTotalPages());
     }
 
     private static void addData(EmployeeRepository repository, int count) {
