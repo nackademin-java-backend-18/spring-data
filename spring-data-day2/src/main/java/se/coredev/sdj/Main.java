@@ -3,7 +3,6 @@ package se.coredev.sdj;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 import se.coredev.sdj.data.Address;
 import se.coredev.sdj.data.Employee;
 import se.coredev.sdj.repository.EmployeeRepository;
@@ -22,14 +21,14 @@ public class Main {
             Page<Employee> result = repository.searchEmployeeByZip(zip, PageRequest.of(0, 4));
 
             // Loop result and request next page
-			while(result.hasNext()) {
+            while (result.hasNext()) {
                 printResult(result);
                 result = repository.searchEmployeeByZip(zip, result.nextPageable());
                 // If this is the last page just print result
-				if(result.isLast()) {
-                   printResult(result);
+                if (result.isLast()) {
+                    printResult(result);
                 }
-			}
+            }
         }
     }
 
