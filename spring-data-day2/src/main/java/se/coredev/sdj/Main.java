@@ -2,12 +2,11 @@ package se.coredev.sdj;
 
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import se.coredev.sdj.data.Address;
 import se.coredev.sdj.data.Employee;
 import se.coredev.sdj.repository.EmployeeRepository;
-import se.coredev.sdj.service.EmployeeService;
-
-import javax.sql.DataSource;
 
 public class Main {
 
@@ -18,13 +17,26 @@ public class Main {
             context.refresh();
 
             EmployeeRepository repository = context.getBean(EmployeeRepository.class);
-            repository.save(new Employee("Luke", "Skywalker", new Address("Street1", "Postal1", "Zip1")));
-            repository.save(new Employee("Leia", "Skywalker", new Address("Street1", "Postal1", "Zip1")));
-            repository.save(new Employee("Han", "Solo", new Address("Street2", "Postal1", "Zip2")));
 
-            repository.getAllEmployees("Zip1").forEach(System.out::println);
+            Page<Employee> result = repository.searchEmployeeByZip("Zip", PageRequest.of(0, 4));
 
+            // Loop result and request next page
+			while(result.hasNext()) {
+				System.out.println("--------- Page " + result.getNumber() + " ----------");
+				result.forEach(System.out::println);
+				result = repository.searchEmployeeByZip("Zip5", result.nextPageable());
+			}
+			// To get content from last page
+			System.out.println("--------- Page " + result.getNumber() + " ----------");
+			result.forEach(System.out::println);
+        }
+    }
 
+    private static void addData(EmployeeRepository repository, int count) {
+        for (int i = 0; i < count; i++) {
+            Address address = new Address("street" + i, "postal" + i, "zip" + i);
+            Employee employee = new Employee("firstName" + i, "lastName" + i, address);
+            repository.save(employee);
         }
     }
 
